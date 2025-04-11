@@ -28,7 +28,7 @@ describe('getPullRequest', () => {
     const result = await getPullRequest(mockConnection, {
       projectId: 'test-project',
       repositoryId: 'test-repo',
-      status: 'active',
+      status: 'active' as const,
     });
 
     expect(mockGetPullRequest).toHaveBeenCalledWith(

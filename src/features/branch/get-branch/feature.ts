@@ -1,23 +1,23 @@
 import { WebApi } from 'azure-devops-node-api';
 import { AzureDevOpsError } from '../../../shared/errors';
-import { ListBranchOptions } from '../types';
+import { GetBranchOptions } from '../types';
 
 /**
- * Get branches
+ * Get branch
  *
  * @param connection The Azure DevOps WebApi connection
- * @param options Options for listing branches
- * @returns The list of branch names
+ * @param options Options for getting a branch
+ * @returns The branch name
  */
-export async function getBranches(
+export async function getBranch(
   connection: WebApi,
-  options: ListBranchOptions,
-): Promise<string[]> {
+  options: GetBranchOptions,
+): Promise<string> {
   try {
     const { project, repositoryId, branchName } = options;
 
-    if (!repositoryId || !project) {
-      throw new Error('Repository ID and Project are required');
+    if (!repositoryId || !project || !branchName) {
+      throw new Error('Repository ID, Project, and Branch Name are required');
     }
 
     const gitApi = await connection.getGitApi();
@@ -29,19 +29,19 @@ export async function getBranches(
       throw new Error('No branches found');
     }
 
-    if (branchName) {
-      return branches
-        .filter((branch) => branch.name?.includes(branchName))
-        .map((branch) => branch.name || '');
+    const branch = branches.find((b) => b.name === branchName);
+
+    if (!branch) {
+      throw new Error(`Branch ${branchName} not found`);
     }
 
-    return branches.map((branch) => branch.name || '');
+    return branch.name || '';
   } catch (error) {
     if (error instanceof AzureDevOpsError) {
       throw error;
     }
     throw new Error(
-      `Failed to get branches: ${error instanceof Error ? error.message : String(error)}`,
+      `Failed to get branch: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
 }

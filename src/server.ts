@@ -18,8 +18,7 @@ import {
 } from './shared/errors';
 import { AuthenticationMethod, AzureDevOpsClient } from './shared/auth';
 import { defaultProject, defaultOrg } from './utils/environment';
-
-import { getBranches } from './features/branch/get-branch/feature';
+import { getBranch } from './features/branch/get-branch/feature';
 import {
   ListWorkItemsSchema,
   GetWorkItemSchema,
@@ -740,7 +739,7 @@ export function createAzureDevOpsServer(config: AzureDevOpsConfig): Server {
             branchName?: string;
           };
 
-          const result = await getBranches(connection, {
+          const result = await getBranch(connection, {
             project: args.project,
             repositoryId: args.repositoryId,
             branchName: args.branchName,
