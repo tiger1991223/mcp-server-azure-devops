@@ -36,20 +36,15 @@ describe('createPullRequest integration', () => {
       process.env.AZURE_DEVOPS_DEFAULT_REPOSITORY || 'DefaultRepo';
 
     // Create a pull request
-    const result = await createPullRequest(
-      connection,
-      projectName,
-      repositoryId,
-      {
-        repositoryId: repositoryId,
-        title: uniqueTitle,
-        description:
-          'This is a test pull request created by an integration test',
-        sourceBranch: 'refs/heads/feature-branch',
-        targetBranch: 'refs/heads/main',
-        isDraft: true,
-      },
-    );
+    const result = await createPullRequest(connection, {
+      projectId: projectName,
+      repositoryId: repositoryId,
+      title: uniqueTitle,
+      description: 'This is a test pull request created by an integration test',
+      sourceBranch: 'refs/heads/feature-branch',
+      targetBranch: 'refs/heads/main',
+      isDraft: true,
+    });
 
     // Assert on the actual response
     expect(result).toBeDefined();

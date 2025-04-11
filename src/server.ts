@@ -73,6 +73,7 @@ import {
 import { GetMeSchema, getMe } from './features/users';
 import { createPullRequest } from './features/pull-requests/create-pull-request/feature';
 import { GitVersionType } from 'azure-devops-node-api/interfaces/GitInterfaces';
+import { getPullRequest } from './features/pull-requests/get-pull-request/feature';
 
 // Create a safe console logging function that won't interfere with MCP protocol
 function safeLog(message: string) {
@@ -118,6 +119,28 @@ export function createAzureDevOpsServer(config: AzureDevOpsConfig): Server {
           description:
             'Get details of the authenticated user (id, displayName, email)',
           inputSchema: zodToJsonSchema(GetMeSchema),
+        },
+        {
+          name: 'get_pull_request',
+          description: 'Get details of a specific pull request',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              projectId: { type: 'string' },
+              repositoryId: { type: 'string' },
+              status: {
+                type: 'string',
+                enum: ['all', 'active', 'completed', 'abandoned'],
+              },
+              creatorId: { type: 'string' },
+              reviewerId: { type: 'string' },
+              sourceBranch: { type: 'string' },
+              targetBranch: { type: 'string' },
+              top: { type: 'number' },
+              skip: { type: 'number' },
+            },
+            required: ['repositoryId', 'projectId'],
+          },
         },
         // Organization tools
         {
@@ -655,31 +678,61 @@ export function createAzureDevOpsServer(config: AzureDevOpsConfig): Server {
           if (!request.params.arguments) {
             throw new Error('Missing arguments for create_pull_request tool.');
           }
-          const args = request.params.arguments;
+          const args = request.params.arguments ? request.params.arguments : {};
           const validatedArgs = {
+            projectId: args.projectId as string,
             repositoryId: args.repositoryId as string,
             sourceBranch: args.sourceBranch as string,
             targetBranch: args.targetBranch as string,
             title: args.title as string,
             description: args.description as string,
           };
-          const result = await createPullRequest(
-            connection,
-            defaultProject,
-            validatedArgs.repositoryId,
-            {
-              repositoryId: validatedArgs.repositoryId,
-              sourceBranch: validatedArgs.sourceBranch,
-              targetBranch: validatedArgs.targetBranch,
-              title: validatedArgs.title,
-              description: validatedArgs.description,
-            },
-          );
+          const result = await createPullRequest(connection, {
+            projectId: validatedArgs.projectId ?? defaultProject,
+            repositoryId: validatedArgs.repositoryId,
+            sourceBranch: validatedArgs.sourceBranch,
+            targetBranch: validatedArgs.targetBranch,
+            title: validatedArgs.title,
+            description: validatedArgs.description,
+          });
           return {
             content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
           };
         }
 
+        case 'get_pull_request': {
+          const args = request.params.arguments as {
+            projectId?: string;
+            repositoryId: string;
+            status?: 'all' | 'active' | 'completed' | 'abandoned';
+            creatorId?: string;
+            reviewerId?: string;
+            sourceBranch?: string;
+            targetBranch?: string;
+            top?: number;
+            skip?: number;
+          };
+
+          const result = await getPullRequest(connection, {
+            projectId: args.projectId ?? defaultProject,
+            repositoryId: args.repositoryId,
+            status: args.status as
+              | 'all'
+              | 'active'
+              | 'completed'
+              | 'abandoned'
+              | undefined,
+            creatorId: args.creatorId as string | undefined,
+            reviewerId: args.reviewerId as string | undefined,
+            sourceBranch: args.sourceBranch as string | undefined,
+            targetBranch: args.targetBranch as string | undefined,
+            top: args.top as number | undefined,
+            skip: args.skip as number | undefined,
+          });
+          return {
+            content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          };
+        }
         default:
           throw new Error(`Unknown tool: ${request.params.name}`);
       }

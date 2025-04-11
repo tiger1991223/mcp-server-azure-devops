@@ -11,7 +11,8 @@ describe('createPullRequest unit', () => {
 
     // Act & Assert
     await expect(
-      createPullRequest(mockConnection, 'TestProject', 'TestRepo', {
+      createPullRequest(mockConnection, {
+        projectId: 'TestProject',
         repositoryId: 'TestRepo',
         title: '',
         sourceBranch: 'refs/heads/feature-branch',
@@ -28,7 +29,8 @@ describe('createPullRequest unit', () => {
 
     // Act & Assert
     await expect(
-      createPullRequest(mockConnection, 'TestProject', 'TestRepo', {
+      createPullRequest(mockConnection, {
+        projectId: 'TestProject',
         repositoryId: 'TestRepo',
         title: 'Test PR',
         sourceBranch: '',
@@ -45,7 +47,8 @@ describe('createPullRequest unit', () => {
 
     // Act & Assert
     await expect(
-      createPullRequest(mockConnection, 'TestProject', 'TestRepo', {
+      createPullRequest(mockConnection, {
+        projectId: 'TestProject',
         repositoryId: 'TestRepo',
         title: 'Test PR',
         sourceBranch: 'refs/heads/feature-branch',
@@ -65,7 +68,8 @@ describe('createPullRequest unit', () => {
 
     // Act & Assert
     await expect(
-      createPullRequest(mockConnection, 'TestProject', 'TestRepo', {
+      createPullRequest(mockConnection, {
+        projectId: 'TestProject',
         repositoryId: 'TestRepo',
         title: 'Test PR',
         sourceBranch: 'refs/heads/feature-branch',
@@ -74,7 +78,8 @@ describe('createPullRequest unit', () => {
     ).rejects.toThrow(AzureDevOpsError);
 
     await expect(
-      createPullRequest(mockConnection, 'TestProject', 'TestRepo', {
+      createPullRequest(mockConnection, {
+        projectId: 'TestProject',
         repositoryId: 'TestRepo',
         title: 'Test PR',
         sourceBranch: 'refs/heads/feature-branch',
@@ -93,7 +98,8 @@ describe('createPullRequest unit', () => {
 
     // Act & Assert
     await expect(
-      createPullRequest(mockConnection, 'TestProject', 'TestRepo', {
+      createPullRequest(mockConnection, {
+        projectId: 'TestProject',
         repositoryId: 'TestRepo',
         title: 'Test PR',
         sourceBranch: 'refs/heads/feature-branch',

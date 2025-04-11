@@ -8,14 +8,11 @@ import { CreatePullRequestOptions, PullRequest } from '../types';
  * @param connection The Azure DevOps WebApi connection
  * @param projectId The ID or name of the project
  * @param repositoryId The ID or name of the repository
- * @param repositoryId The ID or name of the repository
  * @param options Options for creating the pull request
  * @returns The created pull request
  */
 export async function createPullRequest(
   connection: WebApi,
-  projectId: string,
-  repositoryId: string,
   options: CreatePullRequestOptions,
 ): Promise<PullRequest> {
   try {
@@ -53,8 +50,8 @@ export async function createPullRequest(
     // Create the pull request
     const createdPullRequest = await gitApi.createPullRequest(
       pullRequest,
-      repositoryId,
-      projectId,
+      options.repositoryId,
+      options.projectId,
     );
 
     if (!createdPullRequest) {

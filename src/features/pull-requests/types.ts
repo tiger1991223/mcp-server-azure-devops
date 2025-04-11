@@ -6,6 +6,7 @@ export type PullRequest = GitPullRequest;
  * Options for creating a pull request
  */
 export interface CreatePullRequestOptions {
+  projectId: string;
   title: string;
   description?: string;
   sourceBranch: string;
@@ -36,6 +37,8 @@ export interface ListPullRequestsOptions {
  * Options for updating a pull request
  */
 export interface UpdatePullRequestOptions {
+  projectId: string;
+  repositoryId: string;
   title?: string;
   description?: string;
   status?: 'active' | 'completed' | 'abandoned';
