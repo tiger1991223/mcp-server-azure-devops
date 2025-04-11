@@ -19,6 +19,7 @@ import {
 import { AuthenticationMethod, AzureDevOpsClient } from './shared/auth';
 import { defaultProject, defaultOrg } from './utils/environment';
 import { getBranch } from './features/branch/get-branch/feature';
+import { getBranches } from './features/branch/get-branches/feature';
 import {
   ListWorkItemsSchema,
   GetWorkItemSchema,
@@ -732,17 +733,33 @@ export function createAzureDevOpsServer(config: AzureDevOpsConfig): Server {
             content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
           };
         }
-        case 'get_branches': {
+        case 'get_branch': {
           const args = request.params.arguments as {
             project: string;
             repositoryId: string;
-            branchName?: string;
+            branchName: string;
           };
 
           const result = await getBranch(connection, {
             project: args.project,
             repositoryId: args.repositoryId,
             branchName: args.branchName,
+          });
+
+          return {
+            content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+            _meta: { success: true },
+          };
+        }
+        case 'get_branches': {
+          const args = request.params.arguments as {
+            project: string;
+            repositoryId: string;
+          };
+
+          const result = await getBranches(connection, {
+            project: args.project,
+            repositoryId: args.repositoryId,
           });
 
           return {

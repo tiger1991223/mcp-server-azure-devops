@@ -23,17 +23,27 @@ describe('getPullRequest', () => {
       status: 1, // Assuming '1' corresponds to 'active' in PullRequestStatus enum
     } as GitPullRequest;
 
-    mockGetPullRequest.mockResolvedValue(mockResponse);
+    mockGetPullRequest.mockResolvedValue([mockResponse]);
 
     const result = await getPullRequest(mockConnection, {
       projectId: 'test-project',
       repositoryId: 'test-repo',
       status: 'active' as const,
+      creatorId: 'test-creator',
+      reviewerId: 'test-reviewer',
+      sourceBranch: 'refs/heads/test-source',
+      targetBranch: 'refs/heads/test-target',
     });
 
     expect(mockGetPullRequest).toHaveBeenCalledWith(
       'test-repo',
-      1,
+      {
+        status: 'active',
+        creatorId: 'test-creator',
+        reviewerId: 'test-reviewer',
+        sourceRefName: 'refs/heads/test-source',
+        targetRefName: 'refs/heads/test-target',
+      },
       'test-project',
     );
     expect(result).toEqual(mockResponse);
