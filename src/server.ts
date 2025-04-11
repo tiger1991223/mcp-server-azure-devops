@@ -19,7 +19,7 @@ import {
 import { AuthenticationMethod, AzureDevOpsClient } from './shared/auth';
 import { defaultProject, defaultOrg } from './utils/environment';
 
-// Import our new feature modules
+import { getBranches } from './features/branch/get-branch/feature';
 import {
   ListWorkItemsSchema,
   GetWorkItemSchema,
@@ -731,6 +731,24 @@ export function createAzureDevOpsServer(config: AzureDevOpsConfig): Server {
           });
           return {
             content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          };
+        }
+        case 'get_branches': {
+          const args = request.params.arguments as {
+            project: string;
+            repositoryId: string;
+            branchName?: string;
+          };
+
+          const result = await getBranches(connection, {
+            project: args.project,
+            repositoryId: args.repositoryId,
+            branchName: args.branchName,
+          });
+
+          return {
+            content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+            _meta: { success: true },
           };
         }
         default:
