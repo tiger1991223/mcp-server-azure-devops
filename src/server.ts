@@ -71,6 +71,7 @@ import {
 } from './features/search';
 
 import { GetMeSchema, getMe } from './features/users';
+import { createPullRequest } from './features/pull-requests/create-pull-request/feature';
 import { GitVersionType } from 'azure-devops-node-api/interfaces/GitInterfaces';
 
 // Create a safe console logging function that won't interfere with MCP protocol
@@ -213,6 +214,22 @@ export function createAzureDevOpsServer(config: AzureDevOpsConfig): Server {
           name: 'search_work_items',
           description: 'Search for work items across projects in Azure DevOps',
           inputSchema: zodToJsonSchema(SearchWorkItemsSchema),
+        },
+        {
+          name: 'create_pull_request',
+          description: 'Create a new pull request',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              projectId: { type: 'string' },
+              repositoryId: { type: 'string' },
+              sourceBranch: { type: 'string' },
+              targetBranch: { type: 'string' },
+              title: { type: 'string' },
+              description: { type: 'string' },
+            },
+            required: ['repositoryId', 'sourceBranch', 'targetBranch', 'title'],
+          },
         },
       ],
     };
@@ -630,6 +647,34 @@ export function createAzureDevOpsServer(config: AzureDevOpsConfig): Server {
         case 'search_work_items': {
           const args = SearchWorkItemsSchema.parse(request.params.arguments);
           const result = await searchWorkItems(connection, args);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          };
+        }
+        case 'create_pull_request': {
+          if (!request.params.arguments) {
+            throw new Error('Missing arguments for create_pull_request tool.');
+          }
+          const args = request.params.arguments;
+          const validatedArgs = {
+            repositoryId: args.repositoryId as string,
+            sourceBranch: args.sourceBranch as string,
+            targetBranch: args.targetBranch as string,
+            title: args.title as string,
+            description: args.description as string,
+          };
+          const result = await createPullRequest(
+            connection,
+            defaultProject,
+            validatedArgs.repositoryId,
+            {
+              repositoryId: validatedArgs.repositoryId,
+              sourceBranch: validatedArgs.sourceBranch,
+              targetBranch: validatedArgs.targetBranch,
+              title: validatedArgs.title,
+              description: validatedArgs.description,
+            },
+          );
           return {
             content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
           };
